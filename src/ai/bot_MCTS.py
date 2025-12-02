@@ -1,5 +1,5 @@
-from game import Krestik_nolik
-from tree import Tree
+from core.game import Krestik_nolik
+from core.tree import Tree
 import random
 import copy
 import math

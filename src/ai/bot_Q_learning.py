@@ -1,4 +1,4 @@
-from game import Krestik_nolik
+from core.game import Krestik_nolik
 import random
 import copy
 import itertools

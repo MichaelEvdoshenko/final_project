@@ -1,6 +1,6 @@
 import tkinter as tk
-from game import Krestik_nolik
-from bot_MCTS import MCTS_bot
+from core.game import Krestik_nolik
+from ai.bot_MCTS import MCTS_bot
 
 class StartScreen:
     def __init__(self, root):
