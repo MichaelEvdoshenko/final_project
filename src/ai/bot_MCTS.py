@@ -8,8 +8,18 @@ class MCTS_bot():
     def __init__(self, game_state: Krestik_nolik):
         self.game = copy.deepcopy(game_state)
         self.state = self.game.field
-        self.root = Tree(self.state)
+        self.root = Tree()
+        self.bot_symbol = "X"
+        self.player_symbol = "O"
     
+    def evaluate_result(self, winner):
+        if winner == self.bot_symbol:
+            return 1
+        elif winner == "НИЧЬЯ":
+            return 0.5
+        else:
+            return -1
+
     def down_to_tree(self):
         node = self.root
         sup_game = copy.deepcopy(self.game)
@@ -38,12 +48,7 @@ class MCTS_bot():
                     node.add_child(ch)
                     break
         else:
-            if sup_game.winner == "X":
-                prohod = 1
-            elif sup_game.winner == "НИЧЬЯ":
-                prohod = -0.1
-            else:
-                prohod = -1
+            prohod = self.evaluate_result(sup_game.winner)
 
         while node.parent != None:
             node.count_win += prohod
@@ -72,16 +77,9 @@ class MCTS_bot():
             else:
                 player = "X"
 
-        if sim_game.winner == "X":
-            return 1
-        elif sim_game.winner == "НИЧЬЯ":
-            return -0.1
-        else:
-            return -1
+        return self.evaluate_result(sim_game.winner)
         
     def find_best_move(self):
-
-        
         for _ in range(10000):
             self.down_to_tree()
         maxi = -1

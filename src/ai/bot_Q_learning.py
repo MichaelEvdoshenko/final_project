@@ -19,9 +19,12 @@ class Q_learning_bot():
             self.massive_Q[state_hash] = [0 for _ in range(self.size * self.size)]
         return self.massive_Q[state_hash]
 
-    def random_gaming(self):
+    def random_gaming(self, first_turn):
         sim_game = copy.deepcopy(self.game)
-        player = "O"
+        if first_turn == "player":
+            player = "O"
+        else:
+            player = "X"
         moves = []
 
         while sim_game.winner == None:
@@ -41,7 +44,7 @@ class Q_learning_bot():
         elif sim_game.winner == "O":
             r = -1
         else:
-            r = 0
+            r = -0.1
 
         moves.reverse()
         prev = None
@@ -55,9 +58,12 @@ class Q_learning_bot():
                 q_values[x*self.size + y] = q_values[x*self.size + y] + self.alfa * (r + self.eps * prev_q_values[prev_x*self.size + prev_y] - q_values[x*self.size + y])
             prev = [state_hash, [x,y]]
     
-    def Q_gaming(self):
+    def Q_gaming(self, first_turn):
         sim_game = copy.deepcopy(self.game)
-        player = "O"
+        if first_turn == "player":
+            player = "O"
+        else:
+            player = "X"
         moves = []
 
         while sim_game.winner == None:
@@ -81,7 +87,7 @@ class Q_learning_bot():
         elif sim_game.winner == "O":
             r = -1
         else:
-            r = 0
+            r = -0.1
 
         moves.reverse()
         prev = None
@@ -95,11 +101,11 @@ class Q_learning_bot():
                 q_values[x*self.size + y] = q_values[x*self.size + y] + self.alfa * (r + self.eps * prev_q_values[prev_x*self.size + prev_y] - q_values[x*self.size + y])
             prev = [state_hash, [x,y]]
 
-    def learn(self):
+    def learn(self, first_turn):
         for _ in range(500):
-            self.random_gaming()
+            self.random_gaming(first_turn)
         for _ in range(10000):
-            self.Q_gaming()
+            self.Q_gaming(first_turn)
     
     def find_best_move(self, field):
         state_hash = self.from_list_to_hash(field)

@@ -13,13 +13,13 @@ class StartScreen:
     def create_widgets(self):
         title_label = tk.Label(self.root, text = "Выберите режим игры", font = ("Arial", 16, "bold"))
         title_label.pack(pady=20)
-        bot_choice = tk.StringVar(value="MCTS")
+        bot_choice_v = tk.StringVar(value="MCTS")
 
 
-        tk.Radiobutton(self.root, text="MCTS", variable=bot_choice, value="MCTS").pack()
-        tk.Radiobutton(self.root, text="Q_Learning", variable=bot_choice, value="Q_learning").pack()
+        tk.Radiobutton(self.root, text="MCTS", variable=bot_choice_v, value="MCTS").pack()
+        tk.Radiobutton(self.root, text="Q_Learning", variable=bot_choice_v, value="Q_learning").pack()
 
-        self.selected_bot = bot_choice.get()
+        self.selected_bot = bot_choice_v.get()
 
         self.vs_friend_btn = tk.Button(self.root, text = "Играть с другом", command = self.start_vs_friend, width=20, height=2, font=("Arial", 12), bg="lightgreen")
         self.vs_friend_btn.pack(pady=10)
@@ -29,6 +29,15 @@ class StartScreen:
         
         size_frame = tk.Frame(self.root)
         size_frame.pack(pady=20)
+
+        turn_frame = tk.Frame(self.root)
+        turn_frame.pack(pady=10)
+    
+        tk.Label(turn_frame, text="Кто ходит первым:", font=("Arial", 12)).pack()
+    
+        self.turn_var = tk.StringVar(value="player")
+        tk.Radiobutton(turn_frame, text="Я (О)", variable=self.turn_var, value="player", font=("Arial", 10)).pack()
+        tk.Radiobutton(turn_frame, text="Бот (X)", variable=self.turn_var, value="bot", font=("Arial", 10)).pack()
         
         tk.Label(size_frame, text="Размер поля:", font=("Arial", 12)).pack()
         
@@ -40,29 +49,38 @@ class StartScreen:
     
     def start_vs_friend(self):
         self.clear_screen()
-        KrestInterface(self.root, self.size_var.get(), "friend", None)
+        KrestInterface(self.root, self.size_var.get(), "friend", None, "player")
     
     def start_vs_bot(self):
         self.clear_screen()
-        KrestInterface(self.root, self.size_var.get(), "bot", self.selected_bot)
+        KrestInterface(self.root, self.size_var.get(), "bot", self.selected_bot, self.turn_var.get())
     
     def clear_screen(self):
         for widget in self.root.winfo_children():
             widget.destroy()
 
 class KrestInterface:
-    def __init__(self, root, size=3, game_mode = "friend", selected_bot = None):
+    def __init__(self, root, size=3, game_mode = "friend", selected_bot = None, first_turn = "player"):
         self.root = root
         self.size = size
         self.game_mode = game_mode
         self.selected_bot = selected_bot
         self.game = Krestik_nolik(size)
-        self.current_player = "O"
-        if (self.selected_bot != None):
+        self.first_turn = first_turn
+        if game_mode == "bot":
             if self.selected_bot == "MCTS":
-                self.to_move_by_bot = bot_choice(MCTS_bot)
+                self.to_move_by_bot = bot_choice(MCTS_bot, first_turn)
             else:
-                self.to_move_by_bot = bot_choice(Q_learning_bot)
+                self.to_move_by_bot = bot_choice(Q_learning_bot, first_turn)
+        
+            if first_turn == "player":
+                self.current_player = "O"
+                self.bot_player = "X"
+            else:
+                self.current_player = "X"
+                self.bot_player = "X"
+        else:
+            self.current_player = "O"
         
         if game_mode == "friend":
             mode_text = "с другом" 
@@ -91,6 +109,9 @@ class KrestInterface:
         self.status_label = tk.Label(self.root, text=f"Сейчас ходит: {self.current_player}", font=("Arial", 14))
         self.status_label.pack(pady=10)
         
+        if self.game_mode == "bot" and self.first_turn == "bot":
+            self.root.after(100, self.bot_move)
+
         self.restart_button = tk.Button(self.root, text="Новая игра", command=self.restart_game, font=("Arial", 12), bg="lightblue")
         self.restart_button.pack(pady=10)
     
@@ -103,7 +124,7 @@ class KrestInterface:
             widget.destroy()
     
     def on_button_click(self, row, col):
-        if self.game_mode == "bot" and self.current_player == "X":
+        if self.game_mode == "bot" and self.current_player == self.bot_player:
             return
             
         if self.buttons[row][col]['text'] != " ":
@@ -117,10 +138,12 @@ class KrestInterface:
         self.check_game_state()
         
         if self.game.winner is None:
-            self.switch_player()
-            
-            if self.game_mode == "bot" and self.current_player == "X":
+            if self.game_mode == "bot":
+                self.current_player = self.bot_player
+                self.status_label.config(text=f"Сейчас ходит: {self.current_player}")
                 self.root.after(500, self.bot_move)
+            else:
+                self.switch_player()
     
     def bot_move(self):
         if self.selected_bot == "MCTS":
@@ -128,12 +151,16 @@ class KrestInterface:
         else:
             row, col = self.to_move_by_bot.to_do_move(self.game)
         
-        self.game.make_move(row, col, "X")
-        self.buttons[row][col].config(text="X")
+        self.game.make_move(row, col, self.bot_player)
+        self.buttons[row][col].config(text=self.bot_player)
         self.check_game_state()
 
         if self.game.winner is None:
-            self.switch_player()
+            if self.bot_player == "X":
+                self.current_player = "O"
+            else:
+                self.current_player = "X"
+            self.status_label.config(text=f"Сейчас ходит: {self.current_player}")
     
     def check_game_state(self):
         if self.game.winner == "НИЧЬЯ":
@@ -143,13 +170,6 @@ class KrestInterface:
             self.status_label.config(text=f"Победил: {self.game.winner}!", fg="green")
             self.disable_all_buttons()
     
-    def switch_player(self):
-        if self.current_player == "O":
-            self.current_player = "X" 
-        else:
-            self.current_player = "O"
-        self.status_label.config(text=f"Сейчас ходит: {self.current_player}")
-    
     def disable_all_buttons(self):
         for i in range(self.size):
             for j in range(self.size):
@@ -157,7 +177,17 @@ class KrestInterface:
     
     def restart_game(self):
         self.game = Krestik_nolik(self.size)
-        self.current_player = "O"
+        if self.game_mode == "bot":
+            if self.first_turn == "player":
+                self.current_player = "O"
+                self.bot_player = "X"
+            else:
+                self.current_player = "X"
+                self.bot_player = "X"
+                self.root.after(500, self.bot_move)
+        else:
+            self.current_player = "O"
+
         self.status_label.config(text=f"Сейчас ходит: {self.current_player}", fg="black")
         for i in range(self.size):
             for j in range(self.size):
