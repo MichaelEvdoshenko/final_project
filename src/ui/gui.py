@@ -1,6 +1,8 @@
 import tkinter as tk
 from core.game import Krestik_nolik
 from ai.bot_MCTS import MCTS_bot
+from ai.bot_Q_learning import Q_learning_bot
+from ai.construct_bot import bot_choice
 
 class StartScreen:
     def __init__(self, root):
@@ -11,7 +13,14 @@ class StartScreen:
     def create_widgets(self):
         title_label = tk.Label(self.root, text = "Выберите режим игры", font = ("Arial", 16, "bold"))
         title_label.pack(pady=20)
-        
+        bot_choice = tk.StringVar(value="MCTS")
+
+
+        tk.Radiobutton(self.root, text="MCTS", variable=bot_choice, value="MCTS").pack()
+        tk.Radiobutton(self.root, text="Q_Learning", variable=bot_choice, value="Q_learning").pack()
+
+        self.selected_bot = bot_choice.get()
+
         self.vs_friend_btn = tk.Button(self.root, text = "Играть с другом", command = self.start_vs_friend, width=20, height=2, font=("Arial", 12), bg="lightgreen")
         self.vs_friend_btn.pack(pady=10)
         
@@ -31,23 +40,29 @@ class StartScreen:
     
     def start_vs_friend(self):
         self.clear_screen()
-        KrestInterface(self.root, self.size_var.get(), "friend")
+        KrestInterface(self.root, self.size_var.get(), "friend", None)
     
     def start_vs_bot(self):
         self.clear_screen()
-        KrestInterface(self.root, self.size_var.get(), "bot")
+        KrestInterface(self.root, self.size_var.get(), "bot", self.selected_bot)
     
     def clear_screen(self):
         for widget in self.root.winfo_children():
             widget.destroy()
 
 class KrestInterface:
-    def __init__(self, root, size=3, game_mode = "friend"):
+    def __init__(self, root, size=3, game_mode = "friend", selected_bot = None):
         self.root = root
         self.size = size
         self.game_mode = game_mode
+        self.selected_bot = selected_bot
         self.game = Krestik_nolik(size)
         self.current_player = "O"
+        if (self.selected_bot != None):
+            if self.selected_bot == "MCTS":
+                self.to_move_by_bot = bot_choice(MCTS_bot)
+            else:
+                self.to_move_by_bot = bot_choice(Q_learning_bot)
         
         if game_mode == "friend":
             mode_text = "с другом" 
@@ -108,8 +123,10 @@ class KrestInterface:
                 self.root.after(500, self.bot_move)
     
     def bot_move(self):
-        bot = MCTS_bot(self.game)
-        row, col = bot.find_best_move()
+        if self.selected_bot == "MCTS":
+            row, col = self.to_move_by_bot.to_do_move(self.game)
+        else:
+            row, col = self.to_move_by_bot.to_do_move(self.game)
         
         self.game.make_move(row, col, "X")
         self.buttons[row][col].config(text="X")
@@ -145,7 +162,3 @@ class KrestInterface:
         for i in range(self.size):
             for j in range(self.size):
                 self.buttons[i][j].config(text=" ", state="normal", bg="white")
-
-root = tk.Tk()
-app = StartScreen(root)
-root.mainloop()

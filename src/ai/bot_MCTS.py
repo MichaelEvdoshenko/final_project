@@ -41,9 +41,9 @@ class MCTS_bot():
             if sup_game.winner == "X":
                 prohod = 1
             elif sup_game.winner == "НИЧЬЯ":
-                prohod = 0.5
+                prohod = -0.1
             else:
-                prohod = 0
+                prohod = -1
 
         while node.parent != None:
             node.count_win += prohod
@@ -75,22 +75,12 @@ class MCTS_bot():
         if sim_game.winner == "X":
             return 1
         elif sim_game.winner == "НИЧЬЯ":
-            return 0.5
+            return -0.1
         else:
-            return 0
+            return -1
         
     def find_best_move(self):
-        for ch in self.game.available_stats:
-            support_game = copy.deepcopy(self.game)
-            support_game.make_move(ch[0], ch[1], "X")
-            if support_game.winner == "X":
-                return ch
-            
-        for ch in self.game.available_stats:
-            support_game = copy.deepcopy(self.game)
-            support_game.make_move(ch[0], ch[1], "O")
-            if support_game.winner == "O":
-                return ch
+
         
         for _ in range(10000):
             self.down_to_tree()
