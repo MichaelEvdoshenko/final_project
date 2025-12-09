@@ -123,6 +123,13 @@ class KrestInterface:
         for widget in self.root.winfo_children():
             widget.destroy()
     
+    def switch_player(self):
+        if self.current_player == "O":
+            self.current_player = "X" 
+        else:
+            self.current_player = "O"
+        self.status_label.config(text=f"Сейчас ходит: {self.current_player}")
+
     def on_button_click(self, row, col):
         if self.game_mode == "bot" and self.current_player == self.bot_player:
             return
