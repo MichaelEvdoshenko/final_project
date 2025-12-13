@@ -8,23 +8,26 @@ class StartScreen:
     def __init__(self, root):
         self.root = root
         self.root.title("Крестики-нолики - Выбор режима")
+        self.bot_choice_var = tk.StringVar(value="MCTS")
+        self.size_var = tk.IntVar(value=3)
+        self.turn_var = tk.StringVar(value="player")
         self.create_widgets()
     
     def create_widgets(self):
         title_label = tk.Label(self.root, text = "Выберите режим игры", font = ("Arial", 16, "bold"))
         title_label.pack(pady=20)
-        bot_choice_v = tk.StringVar(value="MCTS")
+        
+        tk.Radiobutton(self.root, text="MCTS", variable=self.bot_choice_var, value="MCTS").pack()
+        tk.Radiobutton(self.root, text="Q_Learning", variable=self.bot_choice_var, value="Q_learning").pack()
 
-
-        tk.Radiobutton(self.root, text="MCTS", variable=bot_choice_v, value="MCTS").pack()
-        tk.Radiobutton(self.root, text="Q_Learning", variable=bot_choice_v, value="Q_learning").pack()
-
-        self.selected_bot = bot_choice_v.get()
-
-        self.vs_friend_btn = tk.Button(self.root, text = "Играть с другом", command = self.start_vs_friend, width=20, height=2, font=("Arial", 12), bg="lightgreen")
+        self.vs_friend_btn = tk.Button(self.root, text = "Играть с другом", 
+                                      command = self.start_vs_friend, 
+                                      width=20, height=2, font=("Arial", 12), bg="lightgreen")
         self.vs_friend_btn.pack(pady=10)
         
-        self.vs_bot_btn = tk.Button(self.root, text="Играть с ботом", command=self.start_vs_bot, width=20, height=2, font=("Arial", 12), bg="lightblue")
+        self.vs_bot_btn = tk.Button(self.root, text="Играть с ботом", 
+                                   command=self.start_vs_bot, 
+                                   width=20, height=2, font=("Arial", 12), bg="lightblue")
         self.vs_bot_btn.pack(pady=10)
         
         size_frame = tk.Frame(self.root)
@@ -35,16 +38,15 @@ class StartScreen:
     
         tk.Label(turn_frame, text="Кто ходит первым:", font=("Arial", 12)).pack()
     
-        self.turn_var = tk.StringVar(value="player")
         tk.Radiobutton(turn_frame, text="Я (О)", variable=self.turn_var, value="player", font=("Arial", 10)).pack()
         tk.Radiobutton(turn_frame, text="Бот (X)", variable=self.turn_var, value="bot", font=("Arial", 10)).pack()
         
         tk.Label(size_frame, text="Размер поля:", font=("Arial", 12)).pack()
         
-        self.size_var = tk.IntVar(value=3)
         sizes = [3, 4, 5]
         for size in sizes:
-            rb = tk.Radiobutton(size_frame, text=f"{size}x{size}", variable=self.size_var, value=size, font=("Arial", 10))
+            rb = tk.Radiobutton(size_frame, text=f"{size}x{size}", 
+                               variable=self.size_var, value=size, font=("Arial", 10))
             rb.pack()
     
     def start_vs_friend(self):
@@ -53,7 +55,11 @@ class StartScreen:
     
     def start_vs_bot(self):
         self.clear_screen()
-        KrestInterface(self.root, self.size_var.get(), "bot", self.selected_bot, self.turn_var.get())
+        selected_bot = self.bot_choice_var.get()
+        size = self.size_var.get()
+        first_turn = self.turn_var.get()
+        
+        KrestInterface(self.root, size, "bot", selected_bot, first_turn)
     
     def clear_screen(self):
         for widget in self.root.winfo_children():

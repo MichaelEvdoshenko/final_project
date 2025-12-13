@@ -1,5 +1,5 @@
 class Tree():
-    def __init__(self, count_win = 0, count_inbound = 0, value = [-1, -1], UBC1 = 99999):
+    def __init__(self, count_win = 0, count_inbound = 0, value = [-1, -1], UBC1 = 10.0):
         self.value = value
         self.parent = None 
         self.count_win = count_win
