@@ -3,21 +3,31 @@ from ai.bot_MCTS import MCTS_bot
 from core.game import Krestik_nolik
 
 class bot_choice():
-    def __init__(self, bot_name, first_turn):
-        self.bot_name = bot_name
+    def __init__(self, bot_type: str, first_turn: str, size: int = 3):
+        """
+        bot_type: "MCTS" или "Q_learning"
+        first_turn: "player" или "bot"
+        size: размер поля
+        """
+        self.bot_type = bot_type
         self.first_turn = first_turn
-        self.predict = False
-        self.bot_instance = None
-
-    def to_do_move(self, game: Krestik_nolik):
-        if self.bot_name == Q_learning_bot:
-            if not self.bot_instance:
-                self.bot_instance = Q_learning_bot(game=game)
-                self.bot_instance.learn(self.first_turn)
-                self.predict = True
-
-            return self.bot_instance.find_best_move(game)
+        self.size = size
+        self.prelearn_bot = None
         
-        if self.bot_name == MCTS_bot:
-            bot_instance = MCTS_bot(game)
-            return bot_instance.find_best_move()
+    def to_do_move(self, game: Krestik_nolik):
+
+        if self.bot_type == "Q_learning":
+            if not self.prelearn_bot:
+                empty_game = Krestik_nolik(self.size)
+                self.prelearn_bot = Q_learning_bot(game=empty_game)
+                
+                self.prelearn_bot.learn(self.first_turn)
+            
+            return self.prelearn_bot.find_best_move(game)
+
+        elif self.bot_type == "MCTS":
+            prelearn_bot = MCTS_bot(game)
+            return prelearn_bot.find_best_move()
+
+        else:
+            raise ValueError(f"Неизвестный тип бота: {self.bot_type}")

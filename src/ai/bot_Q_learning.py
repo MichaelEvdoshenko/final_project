@@ -1,9 +1,12 @@
 from core.game import Krestik_nolik
 import random
 import copy
+from ai.base_bot import BaseBot
 
-class Q_learning_bot():
+class Q_learning_bot(BaseBot):
     def __init__(self, game = Krestik_nolik(), alfa = 0.1, eps = 0.9):
+        super().__init__(symbol="X")
+
         self.game = game
         self.alfa = alfa
         self.eps = eps
@@ -22,9 +25,9 @@ class Q_learning_bot():
         sim_game = copy.deepcopy(self.sup_game)
     
         if first_turn == "player":
-            player = "O"
+            player = self.opponent_symbol
         else:
-            player = "X"
+            player = self.symbol
         moves = []
         while sim_game.winner == None:
             avail = sim_game.available_stats.copy()
@@ -33,14 +36,14 @@ class Q_learning_bot():
             state_hash = self.from_list_to_hash(sim_game.field)
             moves.append([state_hash, [x, y], player])
             sim_game.make_move(x, y, player)
-            if player == "X":
-                player = "O"
+            if player == self.symbol:
+                player = self.opponent_symbol
             else:
-                player = "X"
+                player = self.symbol
 
-        if sim_game.winner == "X":
+        if sim_game.winner == self.symbol:
             r = 1.0
-        elif sim_game.winner == "O":
+        elif sim_game.winner == self.opponent_symbol:
             r = -1.0
         else:
             r = 0.0
@@ -51,7 +54,7 @@ class Q_learning_bot():
         for state_hash, [x, y], move_player in moves:
             q_values = self._get_q_values_for_state(state_hash)
             idx = x * self.size + y
-            if move_player == "X":
+            if move_player == self.symbol:
                 reward = r
             else:
                 reward = -r
@@ -63,9 +66,9 @@ class Q_learning_bot():
     def Q_gaming(self, first_turn, epsilon=0.1):
         sim_game = copy.deepcopy(self.sup_game)
         if first_turn == "player":
-            player = "O"
+            player = self.opponent_symbol
         else:
-            player = "X"
+            player = self.symbol
         moves = []
         while sim_game.winner == None:
             avail = sim_game.available_stats.copy()
@@ -93,14 +96,14 @@ class Q_learning_bot():
         
             moves.append([state_hash, action, player])
             sim_game.make_move(action[0], action[1], player)
-            if player == "O":
-                player = "X"
+            if player == self.symbol:
+                player = self.opponent_symbol
             else:
-                player = "O"
+                player = self.symbol
     
-        if sim_game.winner == "X":
+        if sim_game.winner == self.symbol:
             r = 1.0
-        elif sim_game.winner == "O":
+        elif sim_game.winner == self.opponent_symbol:
             r = -1.0
         else:
             r = 0.5
@@ -113,7 +116,7 @@ class Q_learning_bot():
             q_values = self._get_q_values_for_state(state_hash)
             idx = x*self.size + y
 
-            if move_player == "X":
+            if move_player == self.symbol:
                 reward = r
             else:
                 reward = -r

@@ -75,9 +75,9 @@ class KrestInterface:
         self.first_turn = first_turn
         if game_mode == "bot":
             if self.selected_bot == "MCTS":
-                self.to_move_by_bot = bot_choice(MCTS_bot, first_turn)
+                self.to_move_by_bot = bot_choice("MCTS", first_turn)
             else:
-                self.to_move_by_bot = bot_choice(Q_learning_bot, first_turn)
+                self.to_move_by_bot = bot_choice("Q_learning", first_turn)
         
             if first_turn == "player":
                 self.current_player = "O"

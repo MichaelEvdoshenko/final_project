@@ -3,18 +3,18 @@ from core.tree import Tree
 import random
 import copy
 import math
+from ai.base_bot import BaseBot
 
-class MCTS_bot():
-    def __init__(self, game_state: Krestik_nolik):
+class MCTS_bot(BaseBot):
+    def __init__(self, game_state: Krestik_nolik()):
+        super().__init__(symbol="X")
         self.game = copy.deepcopy(game_state)
         self.state = self.game.field
         self.root = Tree()
-        self.bot_symbol = "X"
-        self.player_symbol = "O"
         self.list_mean_UBC1 = [1]
     
     def evaluate_result(self, winner):
-        if winner == self.bot_symbol:
+        if winner == self.symbol:
             return 1
         elif winner == "НИЧЬЯ":
             return 0.5
@@ -24,7 +24,7 @@ class MCTS_bot():
     def down_to_tree(self):
         node = self.root
         sup_game = copy.deepcopy(self.game)
-        player = "X"
+        player = self.symbol
         
         while node.children and len(node.children) == len(sup_game.available_stats) and sup_game.winner == None:
             if random.random() < 0.25:
@@ -35,10 +35,10 @@ class MCTS_bot():
                 next_node = random.choice(candidates)
             node = next_node
             sup_game.make_move(next_node.value[0], next_node.value[1], player)
-            if player == "X":
-                player = "O"
+            if player == self.symbol:
+                player = self.opponent_symbol
             else:
-                player = "X"
+                player = self.symbol
 
         if sup_game.winner == None:
             used_children_coord = [child.value for child in node.children]
@@ -64,10 +64,10 @@ class MCTS_bot():
 
     def simulate(self, child, sim_game: Krestik_nolik, player):
         sim_game.make_move(child[0], child[1], player)
-        if player == "X":
-            player = "O"
+        if player == self.symbol:
+            player = self.opponent_symbol
         else:
-            player = "X"
+            player = self.symbol
 
         while sim_game.winner == None:
             random_ind = random.randint(0, len(sim_game.available_stats)-1)
@@ -76,14 +76,21 @@ class MCTS_bot():
 
             sim_game.make_move(x, y, player)
 
-            if player == "X":
-                player = "O"
+            if player == self.symbol:
+                player = self.opponent_symbol
             else:
-                player = "X"
+                player = self.symbol
 
         return self.evaluate_result(sim_game.winner)
         
-    def find_best_move(self):
+    def find_best_move(self, game_state=None):
+        
+        if game_state is not None:
+            self.game = copy.deepcopy(game_state)
+            self.state = self.game.field
+            self.root = Tree()
+            self.list_mean_UBC1 = [1]
+
         for _ in range(10000):
             self.down_to_tree()
         maxi = -1
