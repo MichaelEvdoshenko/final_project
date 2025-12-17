@@ -5,7 +5,22 @@ class Renderer:
         self.screen = screen
         self.WIDTH = 800
         self.HEIGHT = 700
+        self.ring_image = None
+        try:
+            self.ring_image = pygame.image.load('assets/ring2.png').convert_alpha()
+            self.ring_image = pygame.transform.scale(self.ring_image, (80, 80))
+        except:
+            self.ring_image = None
         
+    def draw_ring(self, x, y, size):
+        if self.ring_image:
+            img_rect = self.ring_image.get_rect(center=(x, y))
+            self.screen.blit(self.ring_image, img_rect)
+        else:
+            pygame.draw.circle(self.screen, (212, 175, 55), (x, y), size//2 - 5, 8)
+            pygame.draw.circle(self.screen, (255, 255, 255), (x, y), size//2 - 15)
+            pygame.draw.circle(self.screen, (255, 245, 200, 180), (x - size//8, y - size//8), size//12)
+
     def draw_start_screen(self, screen_elements):
         self.screen.fill((255, 255, 255))
         
@@ -112,5 +127,6 @@ class Renderer:
                         pygame.draw.line(self.screen, color_value, (x + offset, y + offset), (x + CELL_SIZE - offset, y + CELL_SIZE - offset), line_width)
                         pygame.draw.line(self.screen, color_value, (x + CELL_SIZE - offset, y + offset), (x + offset, y + CELL_SIZE - offset), line_width)
                     else:
-                        radius = 40
-                        pygame.draw.circle(self.screen, color_value, (x + CELL_SIZE//2, y + CELL_SIZE//2), radius, line_width)
+                        center_x = x + CELL_SIZE // 2
+                        center_y = y + CELL_SIZE // 2
+                        self.draw_ring(center_x, center_y, CELL_SIZE)

@@ -7,13 +7,25 @@ from ai.base_bot import BaseBot
 
 class MCTS_bot(BaseBot):
     def __init__(self, game_state: Krestik_nolik()):
-        super().__init__(symbol="X")
+
+        if game_state is None:
+            raise ValueError("game_state не может быть None")
+        if not isinstance(game_state, Krestik_nolik):
+            raise TypeError(f"game_state должен быть Krestik_nolik")
+
+        super().__init__(symbol = "X")
         self.game = copy.deepcopy(game_state)
         self.state = self.game.field
         self.root = Tree()
         self.list_mean_UBC1 = [1]
     
     def evaluate_result(self, winner):
+
+        if not isinstance(winner, str):
+            raise TypeError(f"winner должен быть строкой")
+        if winner not in ["X","O","НИЧЬЯ"]:
+            raise TypeError(f"winner должен быть 'X' или 'O' или 'НИЧЬЯ'")
+
         if winner == self.symbol:
             return 1
         elif winner == "НИЧЬЯ":
@@ -33,6 +45,13 @@ class MCTS_bot(BaseBot):
                 maximal_UBC1 = max(child.UBC1 for child in node.children)
                 candidates = [ch for ch in node.children if ch.UBC1 == maximal_UBC1]
                 next_node = random.choice(candidates)
+
+            if not isinstance(next_node.value, list) or len(next_node.value) != 2:
+                raise ValueError(f"Некорректный node")
+            x, y = next_node.value
+            if not sup_game.make_move(x, y, player):
+                raise ValueError(f"Невозможно сделать ход")
+
             node = next_node
             sup_game.make_move(next_node.value[0], next_node.value[1], player)
             if player == self.symbol:
@@ -44,6 +63,8 @@ class MCTS_bot(BaseBot):
             used_children_coord = [child.value for child in node.children]
             for child in sup_game.available_stats:
                 if child not in used_children_coord:
+                    if not isinstance(child, list) or len(child) != 2:
+                        raise ValueError(f"Некорректный ход")
                     sim_game = copy.deepcopy(sup_game)
                     prohod = self.simulate(child, sim_game, player)
                     UBC1 = sum(self.list_mean_UBC1)/(len(self.list_mean_UBC1))
@@ -63,7 +84,17 @@ class MCTS_bot(BaseBot):
 
 
     def simulate(self, child, sim_game: Krestik_nolik, player):
-        sim_game.make_move(child[0], child[1], player)
+
+        if not isinstance(child, list) or len(child) != 2:
+            raise ValueError(f"child должен быть списком из 2 элементов")
+        if not isinstance(sim_game, Krestik_nolik):
+            raise TypeError(f"sim_game должен быть Krestik_nolik")
+        if player not in ["X", "O"]:
+            raise ValueError(f"player должен быть 'X' или 'O'")
+        x, y = child
+        if not sim_game.make_move(x, y, player):
+            raise ValueError(f"Невозможно сделать ход")
+
         if player == self.symbol:
             player = self.opponent_symbol
         else:
@@ -91,12 +122,25 @@ class MCTS_bot(BaseBot):
             self.root = Tree()
             self.list_mean_UBC1 = [1]
 
+        if not hasattr(self.game, 'available_stats') or not self.game.available_stats:
+            raise ValueError("Нет доступных ходов")
+        if self.game.winner is not None:
+            raise ValueError(f"Игра уже завершена")
+
         for _ in range(10000):
             self.down_to_tree()
+
+        if not self.root.children:
+            raise ValueError("MCTS не нашёл ни одного хода")
+
         maxi = -1
-        move = [-1, -1]    
+        move = None    
         for ch in self.root.children:
             if ch.count_inbound > maxi:
                 maxi = ch.count_inbound
                 move = ch
+        
+        if move is None:
+            raise ValueError("Не удалось найти лучший ход")
+
         return move.value

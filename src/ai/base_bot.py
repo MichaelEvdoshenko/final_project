@@ -1,6 +1,6 @@
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 
-class BaseBot(ABC):
+class BaseBot():
     def __init__(self, symbol="X"):
         self.symbol = symbol
         if symbol == "X":

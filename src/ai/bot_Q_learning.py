@@ -5,23 +5,47 @@ from ai.base_bot import BaseBot
 
 class Q_learning_bot(BaseBot):
     def __init__(self, game = Krestik_nolik(), alfa = 0.1, eps = 0.9):
+
+        if not isinstance(game, Krestik_nolik):
+            raise TypeError(f"game должен быть Krestik_nolik")
+        
+        if not isinstance(alfa, (int, float)) or not (0 <= alfa <= 1):
+            raise ValueError(f"alfa должен быть числом от 0 до 1")
+        
+        if not isinstance(eps, (int, float)) or not (0 <= eps <= 1):
+            raise ValueError(f"eps должен быть числом от 0 до 1")
+
         super().__init__(symbol="X")
 
         self.game = game
+        self.sup_game = None
         self.alfa = alfa
         self.eps = eps
         self.size = self.game.size
         self.massive_Q = {}
     
-    def from_list_to_hash(self, list):
-        return ''.join(''.join(row) for row in list)
+    def from_list_to_hash(self, field):
+        if not isinstance(field, list):
+            raise TypeError(f"field должен быть списком")
+        if not all(isinstance(row, list) for row in field):
+            raise TypeError("field должен быть списком списков")
+        
+        return ''.join(''.join(row) for row in field)
     
     def _get_q_values_for_state(self, state_hash):
+        if not isinstance(state_hash, str):
+            raise TypeError(f"state_hash должен быть строкой")
+
         if state_hash not in self.massive_Q:
             self.massive_Q[state_hash] = [0 for _ in range(self.size * self.size)]
         return self.massive_Q[state_hash]
 
     def random_gaming(self, first_turn):
+        if self.sup_game is None:
+            raise ValueError("sup_game не инициализирован")
+        if first_turn not in ["player", "bot"]:
+            raise ValueError(f"first_turn должен быть 'player' или 'bot'")
+
         sim_game = copy.deepcopy(self.sup_game)
     
         if first_turn == "player":
@@ -64,6 +88,15 @@ class Q_learning_bot(BaseBot):
             next_max_q = max(q_values) 
     
     def Q_gaming(self, first_turn, epsilon=0.1):
+        if self.sup_game is None:
+            raise ValueError("sup_game не инициализирован")
+        
+        if first_turn not in ["player", "bot"]:
+            raise ValueError(f"first_turn должен быть 'player' или 'bot'")
+        
+        if not isinstance(epsilon, (int, float)) or not (0 <= epsilon <= 1):
+            raise ValueError(f"epsilon должен быть числом от 0 до 1")
+        
         sim_game = copy.deepcopy(self.sup_game)
         if first_turn == "player":
             player = self.opponent_symbol
@@ -127,6 +160,9 @@ class Q_learning_bot(BaseBot):
             next_max_q = max(q_values)
 
     def learn(self, first_turn):
+        if first_turn not in ["player", "bot"]:
+            raise ValueError(f"first_turn должен быть 'player' или 'bot'")
+
         self.sup_game = Krestik_nolik(self.size)
         for i in range(500):
             self.random_gaming(first_turn)
@@ -134,6 +170,16 @@ class Q_learning_bot(BaseBot):
             self.Q_gaming(first_turn)
     
     def find_best_move(self, game):
+        if not isinstance(game, Krestik_nolik):
+            raise TypeError(f"game должен быть Krestik_nolik")
+        
+        if game.winner is not None:
+            raise ValueError(f"Игра уже завершена")
+        
+        available_moves = game.available_stats
+        if not available_moves:
+            raise ValueError("Нет доступных ходов")
+
         state_hash = self.from_list_to_hash(game.field)
         if state_hash not in self.massive_Q:
             available_moves = game.available_stats

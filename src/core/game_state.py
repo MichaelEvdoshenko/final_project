@@ -1,9 +1,11 @@
 class GameState:
     def __init__(self, size = 3):
+        if not isinstance(size, int):
+            raise TypeError(f"Размер должен быть целым числом")
         if size <= 0:
-            self.size = 3
-        else:
-            self.size = size
+            raise ValueError(f"Размер поля должен быть положительным")
+
+        self.size = size
         self.field = [[" " for _ in range(self.size)] for _ in range(self.size)]
         self.last_move = [None, None]
         self.winner = None

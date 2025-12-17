@@ -4,18 +4,12 @@ from core.game import Krestik_nolik
 
 class bot_choice():
     def __init__(self, bot_type: str, first_turn: str, size: int = 3):
-        """
-        bot_type: "MCTS" или "Q_learning"
-        first_turn: "player" или "bot"
-        size: размер поля
-        """
         self.bot_type = bot_type
         self.first_turn = first_turn
         self.size = size
         self.prelearn_bot = None
         
     def to_do_move(self, game: Krestik_nolik):
-
         if self.bot_type == "Q_learning":
             if not self.prelearn_bot:
                 empty_game = Krestik_nolik(self.size)

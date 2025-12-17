@@ -1,5 +1,8 @@
 from ui.pygame_ui import PyGameUI
+import pygame
+import sys
+import time
 
-if __name__ == "__main__":
-    app = PyGameUI()
-    app.run()
+pygame.init()
+ui = PyGameUI()
+ui.run()
