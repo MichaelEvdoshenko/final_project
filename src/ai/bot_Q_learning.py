@@ -1,12 +1,19 @@
 from src.core.game import Krestik_nolik
+from typing import Dict, List, Optional, Tuple, Any, Union
 import random
 import copy
 import numpy as np
+from numpy.typing import NDArray
 from src.ai.base_bot import BaseBot
 
 
 class Q_learning_bot(BaseBot):
-    def __init__(self, game=Krestik_nolik(), alfa=0.1, eps=0.9):
+    def __init__(self,
+                 game: Optional[Krestik_nolik] = None,
+                 alfa: float = 0.1, eps: float = 0.9) -> None:
+        if game is None:
+            game = Krestik_nolik()
+
         if not isinstance(game, Krestik_nolik):
             raise TypeError("game должен быть Krestik_nolik")
 
@@ -18,21 +25,22 @@ class Q_learning_bot(BaseBot):
 
         super().__init__(symbol="X")
 
-        self.game = game
-        self.sup_game = None
-        self.alfa = alfa
-        self.eps = eps
-        self.size = self.game.size
-        self.massive_Q = {}
+        self.game: Krestik_nolik = game
+        self.sup_game: Optional[Krestik_nolik] = None
+        self.alfa: float = alfa
+        self.eps: float = eps
+        self.size: int = self.game.size
+        self.massive_Q: Dict[str, NDArray[np.float64]] = {}
 
-    def from_list_to_hash(self, field):
+    def from_list_to_hash(self,
+                          field: Union[List[List[str]], NDArray[Any]]) -> str:
         if not isinstance(field, (list, np.ndarray)):
             raise TypeError("field должен быть списком или массивом")
 
         field_array = np.array(field)
         return ''.join(field_array.flatten())
 
-    def _get_q_values_for_state(self, state_hash):
+    def _get_q_values_for_state(self, state_hash: str) -> NDArray[np.float64]:
         if not isinstance(state_hash, str):
             raise TypeError("state_hash должен быть строкой")
 
@@ -41,7 +49,7 @@ class Q_learning_bot(BaseBot):
             self.massive_Q[state_hash] = np.zeros(sup_v3, dtype=np.float64)
         return self.massive_Q[state_hash]
 
-    def random_gaming(self, first_turn):
+    def random_gaming(self, first_turn: str) -> None:
         if self.sup_game is None:
             raise ValueError("sup_game не инициализирован")
         if first_turn not in ["player", "bot"]:
@@ -50,16 +58,16 @@ class Q_learning_bot(BaseBot):
         sim_game = copy.deepcopy(self.sup_game)
 
         if first_turn == "player":
-            player = self.opponent_symbol
+            player: str = self.opponent_symbol
         else:
             player = self.symbol
-        moves = []
+        moves: List[Tuple[str, List[int], str]] = []
         while sim_game.winner is None:
             avail = sim_game.available_stats.copy()
             rand_move = np.random.randint(0, len(avail))
             [x, y] = avail[rand_move]
             state_hash = self.from_list_to_hash(sim_game.field)
-            moves.append([state_hash, [x, y], player])
+            moves.append((state_hash, [x, y], player))
             sim_game.make_move(x, y, player)
             if player == self.symbol:
                 player = self.opponent_symbol
@@ -74,22 +82,22 @@ class Q_learning_bot(BaseBot):
             r = 0.0
 
         moves.reverse()
-        next_max_q = 0.0
+        next_max_q: float = 0.0
 
         for state_hash, [x, y], move_player in moves:
             q_values = self._get_q_values_for_state(state_hash)
             idx = x * self.size + y
             if move_player == self.symbol:
-                reward = r
+                reward: float = r
             else:
                 reward = -r
-            current_q = q_values[idx]
-            sup_v2 = reward + self.eps * next_max_q - current_q
+            current_q: float = float(q_values[idx])
+            sup_v2: float = reward + self.eps * next_max_q - current_q
             q_values[idx] = current_q + self.alfa * (sup_v2)
 
-            next_max_q = np.max(q_values)
+            next_max_q = float(np.max(q_values))
 
-    def Q_gaming(self, first_turn, epsilon=0.1):
+    def Q_gaming(self, first_turn: str, epsilon: float = 0.1) -> None:
         if self.sup_game is None:
             raise ValueError("sup_game не инициализирован")
 
@@ -101,23 +109,23 @@ class Q_learning_bot(BaseBot):
 
         sim_game = copy.deepcopy(self.sup_game)
         if first_turn == "player":
-            player = self.opponent_symbol
+            player: str = self.opponent_symbol
         else:
             player = self.symbol
-        moves = []
+        moves: List[Tuple[str, List[int], str]] = []
         while sim_game.winner is None:
             avail = sim_game.available_stats.copy()
             state_hash = self.from_list_to_hash(sim_game.field)
 
             if np.random.random() < epsilon:
-                action = random.choice(avail)
+                action: List[int] = random.choice(avail)
             else:
                 q_values = self._get_q_values_for_state(state_hash)
-                best_Q = -np.inf
-                best_actions = []
+                best_Q: float = -np.inf
+                best_actions: List[List[int]] = []
 
                 for x, y in avail:
-                    current_q = q_values[x*self.size + y]
+                    current_q: float = float(q_values[x*self.size + y])
                     if current_q > best_Q:
                         best_Q = current_q
                         best_actions = [[x, y]]
@@ -129,7 +137,7 @@ class Q_learning_bot(BaseBot):
                 else:
                     action = random.choice(avail)
 
-            moves.append([state_hash, action, player])
+            moves.append((state_hash, action, player))
             sim_game.make_move(action[0], action[1], player)
             if player == self.symbol:
                 player = self.opponent_symbol
@@ -144,7 +152,7 @@ class Q_learning_bot(BaseBot):
             r = 0.5
 
         moves.reverse()
-        next_max_q = 0.0
+        next_max_q: float = 0.0
 
         for state_hash, action, move_player in moves:
             x, y = action
@@ -152,17 +160,17 @@ class Q_learning_bot(BaseBot):
             idx = x*self.size + y
 
             if move_player == self.symbol:
-                reward = r
+                reward: float = r
             else:
                 reward = -r
 
-            current_q = q_values[idx]
-            sup_v = reward + self.eps * next_max_q - current_q
+            current_q = float(q_values[idx])
+            sup_v: float = reward + self.eps * next_max_q - current_q
             q_values[idx] = current_q + self.alfa * (sup_v)
 
-            next_max_q = np.max(q_values)
+            next_max_q = float(np.max(q_values))
 
-    def learn(self, first_turn):
+    def learn(self, first_turn: str) -> None:
         if first_turn not in ["player", "bot"]:
             raise ValueError("first_turn должен быть 'player' или 'bot'")
 
@@ -172,7 +180,7 @@ class Q_learning_bot(BaseBot):
         for i in range(10000):
             self.Q_gaming(first_turn)
 
-    def find_best_move(self, game):
+    def find_best_move(self, game: Krestik_nolik) -> List[int]:
         if not isinstance(game, Krestik_nolik):
             raise TypeError("game должен быть Krestik_nolik")
 
@@ -192,14 +200,15 @@ class Q_learning_bot(BaseBot):
                 return [-1, -1]
 
         q_values = self.massive_Q[state_hash]
-        maxi = -np.inf
+        maxi: float = -np.inf
         best_move = [-1, -1]
 
         for i in range(self.size):
             for j in range(self.size):
                 if game.field[i][j] == ' ':
-                    if q_values[i*self.size + j] > maxi:
+                    current_q: float = float(q_values[i*self.size + j])
+                    if current_q > maxi:
                         best_move = [i, j]
-                        maxi = q_values[i*self.size + j]
+                        maxi = current_q
 
         return best_move

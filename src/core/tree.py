@@ -1,16 +1,21 @@
-class Tree():
-    def __init__(self,
-                 count_win=0,
-                 count_inbound=0,
-                 value=[-1, -1],
-                 UBC1=10.0):
-        self.value = value
-        self.parent = None
-        self.count_win = count_win
-        self.count_inbound = count_inbound
-        self.UBC1 = UBC1
-        self.children = []
+from typing import List, Optional
 
-    def add_child(self, child_node):
+
+class Tree:
+    def __init__(self,
+                 count_win: int = 0,
+                 count_inbound: int = 0,
+                 value: Optional[List[int]] = None,
+                 UBC1: float = 10.0) -> None:
+        if value is None:
+            value = [-1, -1]
+        self.value: List[int] = value
+        self.parent: Optional['Tree'] = None
+        self.count_win: int = count_win
+        self.count_inbound: int = count_inbound
+        self.UBC1: float = UBC1
+        self.children: List['Tree'] = []
+
+    def add_child(self, child_node: 'Tree') -> None:
         child_node.parent = self
         self.children.append(child_node)

@@ -2,7 +2,7 @@ from src.core.game_engine import KrestikNolikEngine
 
 
 class Krestik_nolik(KrestikNolikEngine):
-    def __init__(self, size=3):
+    def __init__(self, size: int = 3) -> None:
         if not isinstance(size, int):
             raise TypeError("Размер\
  должен быть целым числом")

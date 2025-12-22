@@ -1,8 +1,9 @@
 import pygame
+from typing import Dict, Any, Optional
 
 
 class Renderer:
-    def __init__(self, screen):
+    def __init__(self, screen: pygame.Surface) -> None:
         self.screen = screen
         self.WIDTH = 800
         self.HEIGHT = 700
@@ -10,11 +11,13 @@ class Renderer:
             ring_original = pygame.image.load(
                 'assets/ring2.png'
             ).convert_alpha()
-            self.ring_image = pygame.transform.scale(ring_original, (80, 80))
-        except (FileNotFoundError):
+            self.ring_image: Optional[pygame.Surface] = pygame.transform.scale(
+                ring_original, (80, 80)
+            )
+        except FileNotFoundError:
             self.ring_image = None
 
-    def draw_ring(self, x, y, size):
+    def draw_ring(self, x: int, y: int, size: int) -> None:
         if self.ring_image:
             img_rect = self.ring_image.get_rect(center=(x, y))
             self.screen.blit(self.ring_image, img_rect)
@@ -29,7 +32,7 @@ class Renderer:
                                (255, 245, 200, 180),
                                (x - size//8, y - size//8), size//12)
 
-    def draw_start_screen(self, screen_elements):
+    def draw_start_screen(self, screen_elements: Dict[str, Any]) -> None:
         self.screen.fill((255, 255, 255))
 
         title_font = pygame.font.Font(None, 48)
@@ -75,7 +78,7 @@ class Renderer:
         turn_label_rect = turn_label.get_rect(center=(self.WIDTH//2, 525))
         self.screen.blit(turn_label, turn_label_rect)
 
-    def draw_game_interface(self, game_interface):
+    def draw_game_interface(self, game_interface: Any) -> None:
         self.screen.fill((255, 255, 255))
 
         if game_interface.game_mode == "friend":

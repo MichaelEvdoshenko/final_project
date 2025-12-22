@@ -4,11 +4,13 @@ import random
 import copy
 import math
 import numpy as np
+from typing import Optional, List, Any
+from numpy.typing import NDArray
 from src.ai.base_bot import BaseBot
 
 
 class MCTS_bot(BaseBot):
-    def __init__(self, game_state: Krestik_nolik):
+    def __init__(self, game_state: Krestik_nolik) -> None:
         if game_state is None:
             raise ValueError("game_state не может быть None")
         if not isinstance(game_state, Krestik_nolik):
@@ -16,11 +18,11 @@ class MCTS_bot(BaseBot):
 
         super().__init__(symbol="X")
         self.game = copy.deepcopy(game_state)
-        self.state = np.array(self.game.field)
-        self.root = Tree()
-        self.list_mean_UBC1 = np.array([1.0])
+        self.state: NDArray[Any] = np.array(self.game.field)
+        self.root: Tree = Tree()
+        self.list_mean_UBC1: NDArray[np.float64] = np.array([1.0])
 
-    def evaluate_result(self, winner):
+    def evaluate_result(self, winner: str) -> float:
         if not isinstance(winner, str):
             raise TypeError("winner должен быть строкой")
         if winner not in ["X", "O", "НИЧЬЯ"]:
@@ -33,7 +35,7 @@ class MCTS_bot(BaseBot):
         else:
             return 0.0
 
-    def down_to_tree(self):
+    def down_to_tree(self) -> None:
         node = self.root
         sup_game = copy.deepcopy(self.game)
         player = self.symbol
@@ -72,28 +74,33 @@ class MCTS_bot(BaseBot):
                                       (list, np.ndarray)) or len(child) != 2:
                         raise ValueError("Некорректный ход")
                     sim_game = copy.deepcopy(sup_game)
-                    prohod = self.simulate(child, sim_game, player)
-                    UBC1 = np.mean(self.list_mean_UBC1)
+                    prohod_float = self.simulate(child, sim_game, player)
+                    prohod_int = int(prohod_float)
+                    UBC1 = float(np.mean(self.list_mean_UBC1))
                     ch = Tree(value=child,
-                              count_win=prohod,
+                              count_win=prohod_int,
                               count_inbound=1,
                               UBC1=UBC1)
                     node.add_child(ch)
                     break
         else:
-            prohod = self.evaluate_result(sup_game.winner)
+            prohod_float = self.evaluate_result(sup_game.winner)
+            prohod_int = int(prohod_float)
 
         while node.parent is not None:
-            node.count_win += prohod
+            node.count_win += prohod_int
             node.count_inbound += 1
             a = 100*math.log(node.parent.count_inbound + 1)
             b = node.count_inbound
             UBC1 = (node.count_win/node.count_inbound) + math.sqrt(a/b)
-            node.UBC1 = UBC1
+            node.UBC1 = float(UBC1)
             self.list_mean_UBC1 = np.append(self.list_mean_UBC1, UBC1)
             node = node.parent
 
-    def simulate(self, child, sim_game: Krestik_nolik, player):
+    def simulate(self,
+                 child: List[int],
+                 sim_game: Krestik_nolik,
+                 player: str) -> float:
         if not isinstance(child, (list, np.ndarray)) or len(child) != 2:
             raise ValueError("child должен быть списком из 2 элементов")
         if not isinstance(sim_game, Krestik_nolik):
@@ -123,8 +130,9 @@ class MCTS_bot(BaseBot):
 
         return self.evaluate_result(sim_game.winner)
 
-    def find_best_move(self, game_state=None):
-
+    def find_best_move(self,
+                       game_state: Optional[Krestik_nolik]
+                       = None) -> List[int]:
         if game_state is not None:
             self.game = copy.deepcopy(game_state)
             self.state = np.array(self.game.field)

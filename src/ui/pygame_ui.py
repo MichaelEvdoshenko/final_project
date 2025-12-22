@@ -6,15 +6,16 @@ from src.ui.Button import Button
 from src.ui.RadioButton import RadioButton
 from src.core.game import Krestik_nolik
 from src.ai.construct_bot import bot_choice
+from typing import Optional, Tuple, Dict, Any, List
 
 
 class GameInterface:
     def __init__(self,
-                 screen,
-                 size=3,
-                 game_mode="friend",
-                 selected_bot=None,
-                 first_turn="player"):
+                 screen: pygame.Surface,
+                 size: int = 3,
+                 game_mode: str = "friend",
+                 selected_bot: Optional[str] = None,
+                 first_turn: str = "player") -> None:
         self.screen = screen
         self.size = size
         self.game_mode = game_mode
@@ -23,8 +24,8 @@ class GameInterface:
         self.game = Krestik_nolik(size)
 
         self.current_player = "O"
-        self.bot_player = None
-        self.bot = None
+        self.bot_player: Optional[str] = None
+        self.bot: Optional[bot_choice] = None
         self.bot_move_delayed = False
         self.bot_thinking = False
         self.bot_timer = 0
@@ -57,7 +58,8 @@ class GameInterface:
         self.board_x = (800 - self.board_width) // 2
         self.board_y = (700 - self.board_height) // 2 + 50
 
-    def get_cell_at_pos(self, pos):
+    def get_cell_at_pos(self,
+                        pos: Tuple[int, int]) -> Optional[Tuple[int, int]]:
         x, y = pos
         CELL_SIZE = 100
         MARGIN = 10
@@ -83,7 +85,7 @@ class GameInterface:
 
         return None
 
-    def make_move(self, row, col, player):
+    def make_move(self, row: int, col: int, player: str) -> None:
         self.game.make_move(row, col, player)
 
         if self.game_mode == "friend":
@@ -92,25 +94,34 @@ class GameInterface:
             if self.game_mode == "bot":
                 if player != self.bot_player:
                     if self.game.winner is None:
-                        self.current_player = self.bot_player
+                        if self.bot_player is not None:
+                            self.current_player = self.bot_player
+                        else:
+                            self.current_player = "O"
                         self.bot_thinking = True
                         self.bot_timer = pygame.time.get_ticks()
 
-    def switch_player(self):
+    def switch_player(self) -> None:
         if self.current_player == "O":
             self.current_player = "X"
         else:
             self.current_player = "O"
 
-    def bot_move(self):
+    def bot_move(self) -> None:
         if not self.bot_thinking:
+            return
+
+        if self.bot is None:
             return
 
         current_time = pygame.time.get_ticks()
         time_difference = current_time - self.bot_timer
         if time_difference > 500:
             row, col = self.bot.to_do_move(self.game)
-            self.make_move(row, col, self.bot_player)
+            if self.bot_player is not None:
+                self.make_move(row, col, self.bot_player)
+            else:
+                self.make_move(row, col, "X")
             self.bot_thinking = False
 
             if self.game.winner is None:
@@ -119,7 +130,7 @@ class GameInterface:
                 else:
                     self.current_player = "X"
 
-    def restart_game(self):
+    def restart_game(self) -> None:
         self.game = Krestik_nolik(self.size)
 
         if self.game_mode == "bot":
@@ -139,7 +150,7 @@ class GameInterface:
             self.bot_thinking = False
             self.bot_move_delayed = False
 
-    def update(self):
+    def update(self) -> None:
         if self.bot_move_delayed:
             self.bot_move_delayed = False
             self.bot_thinking = True
@@ -150,7 +161,7 @@ class GameInterface:
 
 
 class PyGameUI:
-    def __init__(self):
+    def __init__(self) -> None:
         pygame.init()
         self.WIDTH = 800
         self.HEIGHT = 700
@@ -163,16 +174,17 @@ class PyGameUI:
         self.event_handler = EventHandler()
 
         self.current_screen = "start"
-        self.start_screen_elements = self._create_start_screen_elements()
-        self.game_interface = None
+        self.start_screen_elements: Dict[str, Any] = \
+            self._create_start_screen_elements()
+        self.game_interface: Optional[GameInterface] = None
         self.running = True
 
-    def _create_start_screen_elements(self):
-        bot_radio_group = []
-        size_radio_group = []
-        turn_radio_group = []
+    def _create_start_screen_elements(self) -> Dict[str, Any]:
+        bot_radio_group: List[RadioButton] = []
+        size_radio_group: List[RadioButton] = []
+        turn_radio_group: List[RadioButton] = []
 
-        elements = {}
+        elements: Dict[str, Any] = {}
         elements['bot_choice'] = "MCTS"
         elements['size'] = 3
         elements['first_turn'] = "player"
@@ -204,7 +216,7 @@ class PyGameUI:
 
         sizes = [3, 4, 5]
         base_x = 400
-        size_buttons = []
+        size_buttons: List[Tuple[RadioButton, int]] = []
         for i in range(len(sizes)):
             size = sizes[i]
             x = base_x + (i - 1) * 80
@@ -214,7 +226,7 @@ class PyGameUI:
             rb = RadioButton(x, 490,
                              f"{size}x{size}",
                              size_radio_group,
-                             is_selected, size)
+                             is_selected, str(size))
             size_buttons.append((rb, size))
         elements['size_buttons'] = size_buttons
 
@@ -228,7 +240,7 @@ class PyGameUI:
 
         return elements
 
-    def run(self):
+    def run(self) -> None:
         while self.running:
             mouse_pos = pygame.mouse.get_pos()
 
@@ -244,10 +256,11 @@ class PyGameUI:
                     self._handle_start_screen_result(result)
 
                 elif self.current_screen == "game":
-                    result = self.event_handler.handle_game_events(
-                        event, self.game_interface, mouse_pos
-                    )
-                    self._handle_game_result(result)
+                    if self.game_interface:
+                        result = self.event_handler.handle_game_events(
+                            event, self.game_interface, mouse_pos
+                        )
+                        self._handle_game_result(result)
 
             self._update()
             self._draw()
@@ -258,7 +271,7 @@ class PyGameUI:
         pygame.quit()
         sys.exit()
 
-    def _handle_start_screen_result(self, result):
+    def _handle_start_screen_result(self, result: Optional[str]) -> None:
         if result == "friend":
             self.game_interface = self._create_game_interface("friend")
             self.current_screen = "game"
@@ -270,12 +283,12 @@ class PyGameUI:
                 if result == "exit":
                     self.running = False
 
-    def _handle_game_result(self, result):
+    def _handle_game_result(self, result: Optional[str]) -> None:
         if result == "back":
             self.current_screen = "start"
             self.game_interface = None
 
-    def _create_game_interface(self, game_mode):
+    def _create_game_interface(self, game_mode: str) -> GameInterface:
         size = self.start_screen_elements['size']
         selected_bot = self.start_screen_elements['bot_choice']
         first_turn = self.start_screen_elements['first_turn']
@@ -284,12 +297,12 @@ class PyGameUI:
             self.screen, size, game_mode, selected_bot, first_turn
         )
 
-    def _update(self):
+    def _update(self) -> None:
         if self.current_screen == "game":
             if self.game_interface:
                 self.game_interface.update()
 
-    def _draw(self):
+    def _draw(self) -> None:
         if self.current_screen == "start":
             self.renderer.draw_start_screen(self.start_screen_elements)
         else:

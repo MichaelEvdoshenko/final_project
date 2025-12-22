@@ -1,13 +1,20 @@
 import pygame
+from typing import List, Optional, Tuple
 
 
 class RadioButton:
-    def __init__(self, x, y, text, group=None, is_selected=False, value=None):
+    def __init__(self,
+                 x: int,
+                 y: int,
+                 text: str,
+                 group: Optional[List['RadioButton']] = None,
+                 is_selected: bool = False,
+                 value: Optional[str] = None) -> None:
         self.x = x
         self.y = y
         self.text = text
         self.is_selected = is_selected
-        self.group = []
+        self.group: List['RadioButton'] = []
         if value is not None:
             self.value = value
         else:
@@ -31,7 +38,7 @@ class RadioButton:
             if is_selected:
                 self.is_selected = True
 
-    def draw(self, screen):
+    def draw(self, screen: pygame.Surface) -> None:
         if self.is_hovered:
             pygame.draw.circle(screen,
                                self.hover_color,
@@ -52,11 +59,13 @@ class RadioButton:
                                                 self.y))
         screen.blit(text_surf, text_rect)
 
-    def check_hover(self, pos):
+    def check_hover(self, pos: Tuple[int, int]) -> bool:
         self.is_hovered = self.click_area.collidepoint(pos)
         return self.is_hovered
 
-    def check_click(self, pos, event):
+    def check_click(self,
+                    pos: Tuple[int, int],
+                    event: pygame.event.Event) -> bool:
         if event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 1:
                 if self.click_area.collidepoint(pos):

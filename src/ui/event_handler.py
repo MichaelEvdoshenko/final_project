@@ -1,11 +1,16 @@
 import pygame
+from typing import Any, Dict, Optional, Tuple
 
 
 class EventHandler:
-    def __init__(self):
+    def __init__(self) -> None:
         pass
 
-    def handle_start_screen_events(self, event, screen_elements, mouse_pos):
+    def handle_start_screen_events(self,
+                                   event: pygame.event.Event,
+                                   screen_elements: Dict[str, Any],
+                                   mouse_pos: Tuple[int,
+                                                    int]) -> Optional[str]:
         r = None
 
         screen_elements['vs_friend_btn'].check_hover(mouse_pos)
@@ -51,7 +56,10 @@ class EventHandler:
 
         return r
 
-    def handle_game_events(self, event, gameinter, mouse_pos):
+    def handle_game_events(self,
+                           event: pygame.event.Event,
+                           gameinter: Any,
+                           mouse_pos: Tuple[int, int]) -> Optional[str]:
         r = None
 
         gameinter.back_btn.check_hover(mouse_pos)
