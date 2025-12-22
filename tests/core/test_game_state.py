@@ -1,8 +1,5 @@
 import pytest
-import sys
-import os
-from core.game_state import GameState
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
+from src.core.game_state import GameState
 
 
 class TestGameState:

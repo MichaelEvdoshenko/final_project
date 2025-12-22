@@ -1,14 +1,14 @@
-from core.game import Krestik_nolik
-from core.tree import Tree
+from src.core.game import Krestik_nolik
+from src.core.tree import Tree
 import random
 import copy
 import math
 import numpy as np
-from ai.base_bot import BaseBot
+from src.ai.base_bot import BaseBot
 
 
 class MCTS_bot(BaseBot):
-    def __init__(self, game_state: Krestik_nolik()):
+    def __init__(self, game_state: Krestik_nolik):
         if game_state is None:
             raise ValueError("game_state не может быть None")
         if not isinstance(game_state, Krestik_nolik):

@@ -1,4 +1,4 @@
-from .game_state import GameState
+from src.core.game_state import GameState
 
 
 class KrestikNolikEngine:

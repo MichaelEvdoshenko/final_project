@@ -1,4 +1,4 @@
-from core.game_engine import KrestikNolikEngine
+from src.core.game_engine import KrestikNolikEngine
 
 
 class Krestik_nolik(KrestikNolikEngine):

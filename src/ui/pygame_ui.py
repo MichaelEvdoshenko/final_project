@@ -1,11 +1,11 @@
 import pygame
 import sys
-from ui.renderer import Renderer
-from ui.event_handler import EventHandler
-from ui.Button import Button
-from ui.RadioButton import RadioButton
-from core.game import Krestik_nolik
-from ai.construct_bot import bot_choice
+from src.ui.renderer import Renderer
+from src.ui.event_handler import EventHandler
+from src.ui.Button import Button
+from src.ui.RadioButton import RadioButton
+from src.core.game import Krestik_nolik
+from src.ai.construct_bot import bot_choice
 
 
 class GameInterface:

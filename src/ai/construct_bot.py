@@ -1,6 +1,7 @@
-from ai.bot_Q_learning import Q_learning_bot
-from ai.bot_MCTS import MCTS_bot
-from core.game import Krestik_nolik
+from typing import Optional
+from src.ai.bot_Q_learning import Q_learning_bot
+from src.ai.bot_MCTS import MCTS_bot
+from src.core.game import Krestik_nolik
 
 
 class bot_choice():
@@ -8,16 +9,16 @@ class bot_choice():
         self.bot_type = bot_type
         self.first_turn = first_turn
         self.size = size
-        self.prelearn_bot = None
+        self.prelearn_bot: Optional[Q_learning_bot] = None
 
     def to_do_move(self, game: Krestik_nolik):
         if self.bot_type == "Q_learning":
-            if not self.prelearn_bot:
+            if self.prelearn_bot is None:
                 empty_game = Krestik_nolik(self.size)
                 self.prelearn_bot = Q_learning_bot(game=empty_game)
-
                 self.prelearn_bot.learn(self.first_turn)
 
+            assert self.prelearn_bot is not None
             return self.prelearn_bot.find_best_move(game)
 
         elif self.bot_type == "MCTS":

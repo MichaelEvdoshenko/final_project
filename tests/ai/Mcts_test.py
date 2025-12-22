@@ -1,9 +1,6 @@
 import pytest
-import sys
-import os
-from ai.bot_MCTS import MCTS_bot
-from core.game import Krestik_nolik
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
+from src.ai.bot_MCTS import MCTS_bot
+from src.core.game import Krestik_nolik
 
 
 class TestMCTSBot:

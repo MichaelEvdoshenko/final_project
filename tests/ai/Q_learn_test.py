@@ -1,10 +1,7 @@
 import pytest
-import sys
-import os
-from ai.bot_Q_learning import Q_learning_bot
-from core.game import Krestik_nolik
+from src.ai.bot_Q_learning import Q_learning_bot
+from src.core.game import Krestik_nolik
 import numpy as np
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 
 class TestQLearningBot:

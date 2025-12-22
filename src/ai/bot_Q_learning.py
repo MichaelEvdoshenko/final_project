@@ -1,8 +1,8 @@
-from core.game import Krestik_nolik
+from src.core.game import Krestik_nolik
 import random
 import copy
 import numpy as np
-from ai.base_bot import BaseBot
+from src.ai.base_bot import BaseBot
 
 
 class Q_learning_bot(BaseBot):

@@ -1,4 +1,4 @@
-from ui.pygame_ui import PyGameUI
+from src.ui.pygame_ui import PyGameUI
 import pygame
 
 pygame.init()
