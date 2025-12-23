@@ -24,6 +24,5 @@ class bot_choice:
         elif self.bot_type == "MCTS":
             prelearn_bot = MCTS_bot(game)
             return prelearn_bot.find_best_move()
-
         else:
             raise ValueError(f"Неизвестный тип бота: {self.bot_type}")

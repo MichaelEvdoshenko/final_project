@@ -16,6 +16,11 @@ class GameInterface:
                  game_mode: str = "friend",
                  selected_bot: Optional[str] = None,
                  first_turn: str = "player") -> None:
+        if size is not None:
+            try:
+                size = int(size)
+            except ValueError:
+                print("недопустимый тип size")
         self.screen = screen
         self.size = size
         self.game_mode = game_mode
@@ -32,9 +37,9 @@ class GameInterface:
 
         if game_mode == "bot":
             if self.selected_bot == "MCTS":
-                self.bot = bot_choice("MCTS", first_turn)
+                self.bot = bot_choice("MCTS", first_turn, self.size)
             else:
-                self.bot = bot_choice("Q_learning", first_turn)
+                self.bot = bot_choice("Q_learning", first_turn, self.size)
 
             if first_turn == "player":
                 self.current_player = "O"

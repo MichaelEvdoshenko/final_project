@@ -203,12 +203,11 @@ class Q_learning_bot(BaseBot):
         maxi: float = -np.inf
         best_move = [-1, -1]
 
-        for i in range(self.size):
-            for j in range(self.size):
-                if game.field[i][j] == ' ':
-                    current_q: float = float(q_values[i*self.size + j])
-                    if current_q > maxi:
-                        best_move = [i, j]
-                        maxi = current_q
+        for [i, j] in game.available_stats:
+            if game.field[i][j] == ' ':
+                current_q: float = float(q_values[i*self.size + j])
+                if current_q > maxi:
+                    best_move = [i, j]
+                    maxi = current_q
 
         return best_move
