@@ -9,9 +9,10 @@ class Renderer:
         self.HEIGHT = 700
 
         try:
-            fallback_original = pygame.image.load("assets/ring2.png").convert_alpha()
-            self.fallback_image: Optional[pygame.Surface] = pygame.transform.scale(
-                fallback_original, (80, 80)
+            sup_arg = pygame.image.load("assets/ring2.png")
+            fallback_original = sup_arg.convert_alpha()
+            self.fallback_image: Optional[pygame.Surface] = (
+                pygame.transform.scale(fallback_original, (80, 80))
             )
         except FileNotFoundError:
             self.fallback_image = None
@@ -32,11 +33,11 @@ class Renderer:
         except FileNotFoundError:
             self.game_bg = None
 
-
         self.ball_images: List[pygame.Surface] = []
         for i in range(5):
             try:
-                img = pygame.image.load(f"assets/balls/ball_{i}.png").convert_alpha()
+                ball_path = f"assets/balls/ball_{i}.png"
+                img = pygame.image.load(ball_path).convert_alpha()
                 img = pygame.transform.scale(img, (80, 80))
                 self.ball_images.append(img)
             except FileNotFoundError:
@@ -47,8 +48,10 @@ class Renderer:
             img_rect = self.fallback_image.get_rect(center=(x, y))
             self.screen.blit(self.fallback_image, img_rect)
         else:
-            pygame.draw.circle(self.screen, (212, 175, 55), (x, y), size // 2 - 5, 8)
-            pygame.draw.circle(self.screen, (255, 255, 255), (x, y), size // 2 - 15)
+            pygame.draw.circle(self.screen,
+                               (212, 175, 55), (x, y), size // 2 - 5, 8)
+            pygame.draw.circle(self.screen,
+                               (255, 255, 255), (x, y), size // 2 - 15)
             pygame.draw.circle(
                 self.screen,
                 (255, 245, 200, 180),
@@ -111,7 +114,6 @@ class Renderer:
         else:
             self.screen.fill((255, 255, 255))
 
-
         if game_interface.game_mode == "friend":
             mode_text = "с другом"
         else:
@@ -119,7 +121,8 @@ class Renderer:
 
         title_font = pygame.font.Font(None, 48)
         title_text = (
-            f"Крестики-нолики {game_interface.size}x{game_interface.size} ({mode_text})"
+            f"Крестики-нолики\
+ {game_interface.size}x{game_interface.size} ({mode_text})"
         )
         title = title_font.render(title_text, True, (30, 40, 80))
         title_rect = title.get_rect(center=(self.WIDTH // 2, 50))
@@ -142,7 +145,8 @@ class Renderer:
                     status_text = "Бот думает..."
                     color_value = (30, 40, 80)
                 else:
-                    status_text = f"Сейчас ходит: {game_interface.current_player}"
+                    status_text = f"Сейчас ходит:\
+ {game_interface.current_player}"
                     color_value = (30, 40, 80)
 
         status = status_font.render(status_text, True, color_value)
@@ -158,8 +162,15 @@ class Renderer:
                 y = game_interface.board_y + row * (CELL_SIZE + MARGIN)
 
                 cell_rect = pygame.Rect(x, y, CELL_SIZE, CELL_SIZE)
-                pygame.draw.rect(self.screen, (255, 255, 255), cell_rect, border_radius=5)
-                pygame.draw.rect(self.screen, (30, 40, 80), cell_rect, 2, border_radius=5)
+                pygame.draw.rect(self.screen,
+                                 (255, 255, 255),
+                                 cell_rect,
+                                 border_radius=5)
+                pygame.draw.rect(self.screen,
+                                 (30, 40, 80),
+                                 cell_rect,
+                                 2,
+                                 border_radius=5)
 
                 cell_value = game_interface.game.field[row][col]
                 if cell_value != " ":

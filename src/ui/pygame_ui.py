@@ -28,8 +28,7 @@ class GameInterface:
         self.first_turn = first_turn
         self.game = Krestik_nolik(size)
         self.o_move_counter = 0
-        self.o_skins = [[None for _ in range(self.size)] for _ in range(self.size)]
-
+        self.o_skins = [[None] * self.size for _ in range(self.size)]
 
         self.current_player = "O"
         self.bot_player: Optional[str] = None
@@ -99,7 +98,6 @@ class GameInterface:
             self.o_skins[row][col] = self.o_move_counter
             self.o_move_counter += 1
 
-
         if self.game_mode == "friend":
             self.switch_player()
         else:
@@ -145,8 +143,7 @@ class GameInterface:
     def restart_game(self) -> None:
         self.game = Krestik_nolik(self.size)
         self.o_move_counter = 0
-        self.o_skins = [[None for _ in range(self.size)] for _ in range(self.size)]
-
+        self.o_skins = [[None] * self.size for _ in range(self.size)]
 
         if self.game_mode == "bot":
             if self.first_turn == "player":

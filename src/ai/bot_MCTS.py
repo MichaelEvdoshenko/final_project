@@ -144,7 +144,7 @@ class MCTS_bot(BaseBot):
             raise ValueError("Нет доступных ходов")
         if self.game.winner is not None:
             raise ValueError("Игра уже завершена")
-        
+
         for move in self.game.available_stats:
             x, y = move
             test_game = copy.deepcopy(self.game)

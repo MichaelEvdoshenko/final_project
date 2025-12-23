@@ -45,7 +45,8 @@ class RadioButton:
                                (self.x, self.y),
                                self.radius + 5)
 
-        pygame.draw.circle(screen, (30, 40, 80), (self.x, self.y), self.radius, 2)
+        pygame.draw.circle(screen,
+                           (30, 40, 80), (self.x, self.y), self.radius, 2)
 
         if self.is_selected:
             pygame.draw.circle(screen,
