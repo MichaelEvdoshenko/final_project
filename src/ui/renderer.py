@@ -24,6 +24,15 @@ class Renderer:
         except FileNotFoundError:
             self.start_bg = None
 
+        try:
+            game_bg_original = pygame.image.load("assets/main_back.png")
+            self.game_bg = pygame.transform.scale(
+                game_bg_original, (self.WIDTH, self.HEIGHT)
+            )
+        except FileNotFoundError:
+            self.game_bg = None
+
+
         self.ball_images: List[pygame.Surface] = []
         for i in range(5):
             try:
@@ -97,7 +106,11 @@ class Renderer:
         self.screen.blit(turn_label, turn_label_rect)
 
     def draw_game_interface(self, game_interface: Any) -> None:
-        self.screen.fill((255, 255, 255))
+        if self.game_bg:
+            self.screen.blit(self.game_bg, (0, 0))
+        else:
+            self.screen.fill((255, 255, 255))
+
 
         if game_interface.game_mode == "friend":
             mode_text = "с другом"
