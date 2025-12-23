@@ -45,16 +45,16 @@ class RadioButton:
                                (self.x, self.y),
                                self.radius + 5)
 
-        pygame.draw.circle(screen, (0, 0, 0), (self.x, self.y), self.radius, 2)
+        pygame.draw.circle(screen, (30, 40, 80), (self.x, self.y), self.radius, 2)
 
         if self.is_selected:
             pygame.draw.circle(screen,
-                               (0, 0, 0),
+                               (30, 40, 80),
                                (self.x, self.y),
                                self.radius - 4)
 
         font = pygame.font.Font(None, self.font_size)
-        text_surf = font.render(self.text, True, (0, 0, 0))
+        text_surf = font.render(self.text, True, (30, 40, 80))
         text_rect = text_surf.get_rect(midleft=(self.x + self.radius + 10,
                                                 self.y))
         screen.blit(text_surf, text_rect)

@@ -2,7 +2,8 @@ import pygame
 from typing import Tuple
 
 WHITE = (255, 255, 255)
-BLACK = (0, 0, 0)
+BLUE = (190, 230, 240)
+DARK_BLUE = (30, 40, 80)
 
 
 class Button:
@@ -13,7 +14,7 @@ class Button:
                  height: int,
                  text: str,
                  color: Tuple[int, int, int] = WHITE,
-                 hover_color: Tuple[int, int, int] = WHITE) -> None:
+                 hover_color: Tuple[int, int, int] = BLUE) -> None:
         self.x = x
         self.y = y
         self.width = width
@@ -29,10 +30,10 @@ class Button:
     def draw(self, screen: pygame.Surface) -> None:
         pygame.draw.rect(screen,
                          self.current_color, self.rect, border_radius=10)
-        pygame.draw.rect(screen, BLACK, self.rect, 2, border_radius=10)
+        pygame.draw.rect(screen, DARK_BLUE, self.rect, 2, border_radius=10)
 
         font = pygame.font.Font(None, self.font_size)
-        text_surf = font.render(self.text, True, BLACK)
+        text_surf = font.render(self.text, True, DARK_BLUE)
         text_rect = text_surf.get_rect(center=self.rect.center)
         screen.blit(text_surf, text_rect)
 
