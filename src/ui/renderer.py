@@ -7,6 +7,8 @@ class Renderer:
         self.screen = screen
         self.WIDTH = 800
         self.HEIGHT = 700
+        self.title_font = pygame.font.Font("assets/Zubilo.otf", 34)
+        self.label_font = pygame.font.Font("assets/Zubilo.otf", 25)
 
         try:
             sup_arg = pygame.image.load("assets/ring2.png")
@@ -65,12 +67,12 @@ class Renderer:
         else:
             self.screen.fill((255, 255, 255))
 
-        title_font = pygame.font.Font(None, 48)
+        title_font = self.title_font
         title = title_font.render("Крестики-нолики", True, (30, 40, 80))
         title_rect = title.get_rect(center=(self.WIDTH // 2, 105))
         self.screen.blit(title, title_rect)
 
-        label_font = pygame.font.Font(None, 36)
+        label_font = self.label_font
         subtitle = label_font.render("Выберите режим игры", True, (30, 40, 80))
         subtitle_rect = subtitle.get_rect(center=(self.WIDTH // 2, 154))
         self.screen.blit(subtitle, subtitle_rect)
@@ -119,7 +121,7 @@ class Renderer:
         else:
             mode_text = "с ботом"
 
-        title_font = pygame.font.Font(None, 48)
+        title_font = self.title_font
         title_text = (
             f"Крестики-нолики\
  {game_interface.size}x{game_interface.size} ({mode_text})"
@@ -131,7 +133,7 @@ class Renderer:
         game_interface.back_btn.draw(self.screen)
         game_interface.restart_btn.draw(self.screen)
 
-        status_font = pygame.font.Font(None, 36)
+        status_font = self.label_font
 
         if game_interface.game.winner == "НИЧЬЯ":
             status_text = "Ничья! Игра окончена."

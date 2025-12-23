@@ -23,7 +23,11 @@ class Button:
         self.color = color
         self.hover_color = hover_color
         self.current_color = color
-        self.font_size = 32
+        self.font_size = 25
+        self.font = pygame.font.Font(
+            "assets/Zubilo.otf",
+            self.font_size
+        )
         self.is_hovered = False
         self.rect = pygame.Rect(x, y, width, height)
 
@@ -32,8 +36,7 @@ class Button:
                          self.current_color, self.rect, border_radius=10)
         pygame.draw.rect(screen, DARK_BLUE, self.rect, 2, border_radius=10)
 
-        font = pygame.font.Font(None, self.font_size)
-        text_surf = font.render(self.text, True, DARK_BLUE)
+        text_surf = self.font.render(self.text, True, DARK_BLUE)
         text_rect = text_surf.get_rect(center=self.rect.center)
         screen.blit(text_surf, text_rect)
 

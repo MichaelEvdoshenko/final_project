@@ -22,7 +22,11 @@ class RadioButton:
         self.hover_color = (255, 255, 255)
         self.normal_color = (255, 255, 255)
         self.is_hovered = False
-        self.font_size = 28
+        self.font_size = 20
+        self.font = pygame.font.Font(
+            "assets/Zubilo.otf",
+            self.font_size
+        )
         self.radius = 10
         self.click_area = pygame.Rect(x - 20, y - 20, 40, 40)
 
@@ -54,8 +58,7 @@ class RadioButton:
                                (self.x, self.y),
                                self.radius - 4)
 
-        font = pygame.font.Font(None, self.font_size)
-        text_surf = font.render(self.text, True, (30, 40, 80))
+        text_surf = self.font.render(self.text, True, (30, 40, 80))
         text_rect = text_surf.get_rect(midleft=(self.x + self.radius + 10,
                                                 self.y))
         screen.blit(text_surf, text_rect)
