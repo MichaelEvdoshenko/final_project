@@ -11,13 +11,10 @@ class Renderer:
         self.label_font = pygame.font.Font("assets/Zubilo.otf", 25)
 
         try:
-            sup_arg = pygame.image.load("assets/ring2.png")
-            fallback_original = sup_arg.convert_alpha()
-            self.fallback_image: Optional[pygame.Surface] = (
-                pygame.transform.scale(fallback_original, (80, 80))
-            )
+            candy_original = pygame.image.load("assets/candy.png").convert_alpha()
+            self.candy_image = pygame.transform.scale(candy_original, (80, 80))
         except FileNotFoundError:
-            self.fallback_image = None
+            self.candy_image = None
 
         try:
             bg_original = pygame.image.load("assets/main_back.png")
@@ -178,27 +175,15 @@ class Renderer:
                 if cell_value != " ":
                     color_value = (30, 40, 80)
                     line_width = 5
+                    center_x = x + CELL_SIZE // 2
+                    center_y = y + CELL_SIZE // 2
 
-                    if cell_value == "X":
-                        offset = 15
-                        pygame.draw.line(
-                            self.screen,
-                            color_value,
-                            (x + offset, y + offset),
-                            (x + CELL_SIZE - offset, y + CELL_SIZE - offset),
-                            line_width,
-                        )
-                        pygame.draw.line(
-                            self.screen,
-                            color_value,
-                            (x + CELL_SIZE - offset, y + offset),
-                            (x + offset, y + CELL_SIZE - offset),
-                            line_width,
-                        )
+                    if cell_value == 'X':
+                        if self.candy_image:
+                            rect = self.candy_image.get_rect(center=(center_x, center_y))
+                            self.screen.blit(self.candy_image, rect)
+
                     else:
-                        center_x = x + CELL_SIZE // 2
-                        center_y = y + CELL_SIZE // 2
-
                         idx = game_interface.o_skins[row][col]
                         if idx is not None and self.ball_images:
                             img = self.ball_images[idx % len(self.ball_images)]
