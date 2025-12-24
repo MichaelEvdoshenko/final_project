@@ -19,7 +19,7 @@ class RadioButton:
             self.value = value
         else:
             self.value = text
-        self.hover_color = (255, 255, 255)
+        self.hover_color = (190, 230, 240)
         self.normal_color = (255, 255, 255)
         self.is_hovered = False
         self.font_size = 20
